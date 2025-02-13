@@ -1,54 +1,57 @@
-// src/app/api/auth/callback/route.js
+
+// src\app\api\auth\callback\route.js
 import shopify from "@/app/lib/shopify";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-
 const MONGO_URI = process.env.MONGO_URI;
 const client = new MongoClient(MONGO_URI);
-
 export async function GET(req, res) {
   if (req.method !== "GET") {
     return NextResponse.json({ error: "Method Not Allowed" }, { status: 405 });
   }
-
   try {
     const { session } = await shopify.auth.callback({
       rawRequest: req,
       rawResponse: res,
     });
-
+    console.log("Session received:", session);
     if (!session?.shop || !session?.accessToken) {
       throw new Error("Session missing required fields (shop, accessToken)");
     }
-
-    // Save session to MongoDB
+    // ✅ Connect to MongoDB
     await client.connect();
     const database = client.db("shopifyapp");
     const sessions = database.collection("sessions");
-
+    // ✅ Extract session data
+    const { shop, accessToken, scope, isOnline, expires } = session;
     const sessionData = {
-      shop: session.shop,
-      accessToken: session.accessToken,
-      scope: session.scope,
-      isOnline: session.isOnline,
-      expires: session.expires,
+      shop,
+      accessToken,
+      scope,
+      isOnline,
+      expires,
       createdAt: new Date(),
     };
-
-    await sessions.updateOne(
-      { shop: session.shop },
-      { $set: sessionData },
-      { upsert: true }
-    );
-
-    // Redirect to products page
+    // ✅ Upsert session into MongoDB
+    const existingShop = await sessions.findOne({ shop });
+    if (existingShop) {
+      console.log(`Shop ${shop} already exists. Skipping session creation.`);
+    } else {
+      // ✅ Upsert session into MongoDB if shop doesn't exist
+      await sessions.insertOne(sessionData);
+      console.log("✅ Session saved successfully:", sessionData);
+    }
+    // ✅ Redirect to About page with necessary params
     const { searchParams } = new URL(req.url);
     const host = searchParams.get("host");
-    const redirectUrl = `https://${process.env.NEXT_PUBLIC_HOST}/products?host=${host}&shop=${session.shop}`;
+    // Ensure NEXT_PUBLIC_HOST does not include the protocol
+    const hostWithoutProtocol = process.env.NEXT_PUBLIC_HOST.replace(/^https?:\/\//, '');
+    const redirectUrl = `https://${hostWithoutProtocol}/products?host=${host}&shop=${session.shop}`;
+    console.log("🔹 Redirecting to:", redirectUrl);
     return NextResponse.redirect(redirectUrl);
   } catch (error) {
-    console.error("Error during OAuth callback:", error);
+    console.error("❌ Error during OAuth callback:", error);
     return NextResponse.json(
       { error: "Authentication failed", details: error.message },
       { status: 500 }
@@ -57,67 +60,3 @@ export async function GET(req, res) {
     await client.close();
   }
 }
-
-
-
-// // src\app\api\auth\callback\route.js
-// import shopify from "@/app/lib/shopify";
-// import { cookies } from "next/headers";
-// import { NextRequest, NextResponse } from "next/server";
-// import { MongoClient } from "mongodb";
-// const MONGO_URI = process.env.MONGO_URI;
-// const client = new MongoClient(MONGO_URI);
-// export async function GET(req, res) {
-//   if (req.method !== "GET") {
-//     return NextResponse.json({ error: "Method Not Allowed" }, { status: 405 });
-//   }
-//   try {
-//     const { session } = await shopify.auth.callback({
-//       rawRequest: req,
-//       rawResponse: res,
-//     });
-//     console.log("Session received:", session);
-//     if (!session?.shop || !session?.accessToken) {
-//       throw new Error("Session missing required fields (shop, accessToken)");
-//     }
-//     // ✅ Connect to MongoDB
-//     await client.connect();
-//     const database = client.db("shopifyapp");
-//     const sessions = database.collection("sessions");
-//     // ✅ Extract session data
-//     const { shop, accessToken, scope, isOnline, expires } = session;
-//     const sessionData = {
-//       shop,
-//       accessToken,
-//       scope,
-//       isOnline,
-//       expires,
-//       createdAt: new Date(),
-//     };
-//     // ✅ Upsert session into MongoDB
-//     const existingShop = await sessions.findOne({ shop });
-//     if (existingShop) {
-//       console.log(`Shop ${shop} already exists. Skipping session creation.`);
-//     } else {
-//       // ✅ Upsert session into MongoDB if shop doesn't exist
-//       await sessions.insertOne(sessionData);
-//       console.log("✅ Session saved successfully:", sessionData);
-//     }
-//     // ✅ Redirect to About page with necessary params
-//     const { searchParams } = new URL(req.url);
-//     const host = searchParams.get("host");
-//     // Ensure NEXT_PUBLIC_HOST does not include the protocol
-//     const hostWithoutProtocol = process.env.NEXT_PUBLIC_HOST.replace(/^https?:\/\//, '');
-//     const redirectUrl = `https://${hostWithoutProtocol}/products?host=${host}&shop=${session.shop}`;
-//     console.log("🔹 Redirecting to:", redirectUrl);
-//     return NextResponse.redirect(redirectUrl);
-//   } catch (error) {
-//     console.error("❌ Error during OAuth callback:", error);
-//     return NextResponse.json(
-//       { error: "Authentication failed", details: error.message },
-//       { status: 500 }
-//     );
-//   } finally {
-//     await client.close();
-//   }
-// }
