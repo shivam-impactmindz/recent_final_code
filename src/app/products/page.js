@@ -41,7 +41,8 @@ export default function ProductsPage() {
         // ✅ Fetch products from API
         const productsResponse = await fetch(`/api/products?shop=${shop}`);
         const productsData = await productsResponse.json();
-
+       console.log("productsResponse", productsResponse);
+       console.log("productsData", productsData);
         if (productsData.products) {
           setProducts(productsData.products);
         }
