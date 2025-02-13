@@ -1,3 +1,4 @@
+// src\app\products\page.js
 // src/app/products/page.js
 "use client";
 import { useEffect, useState } from "react";
