@@ -47,6 +47,9 @@ const Header = () => {
         <nav>
           <ul className="nav-links">
             <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li>
               <a href={`/products?shop=${shop}`} onClick={handleProductsClick}>
                 Products
               </a>

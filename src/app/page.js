@@ -1,9 +1,34 @@
 // src\app\page.js
-import { redirect } from "next/navigation";
+
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import Cookies from "js-cookie";
 
 export default function HomePage() {
-    redirect("/login"); // Redirects to the login page
+    const router = useRouter();
+    useEffect(() => {
+        const shop = Cookies.get("shop");
+        if (shop) {
+            router.push(`/products?shop=${shop}`);
+        }
+    }, [router]);
+    const handleLogin = () => {
+        router.push("/login");
+    };
+    return (
+        <div className="home-container">
+            <div className="hero">
+                <h1 className="title">Welcome to Your Shopify App</h1>
+                <p className="description">Manage your products with ease and efficiency.</p>
+                <button onClick={handleLogin} className="login-button">Login to Get Started</button>
+            </div>
+        </div>
+    );
 }
+
+
+
 
 
 // "use client"; // Mark this as a Client Component
