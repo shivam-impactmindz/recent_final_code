@@ -17,7 +17,7 @@ export default function ProductsPage() {
       const shop = Cookies.get("shop");
 
       if (!shop) {
-        router.replace("/login");
+        router.replace("/");
         return;
       }
 
@@ -32,7 +32,7 @@ export default function ProductsPage() {
 
         if (!verifyData.isValid) {
           setIsValidShop(false);
-          router.replace("/login");
+          router.replace("/");
           return;
         }
 

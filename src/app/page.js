@@ -2,26 +2,30 @@
 
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 export default function HomePage() {
     const router = useRouter();
+    const [showLogin, setShowLogin] = useState(true);
+
     useEffect(() => {
         const shop = Cookies.get("shop");
-        if (shop) {
-            router.push(`/products?shop=${shop}`);
-        }
-    }, [router]);
+        setShowLogin(!shop);
+    }, []);
+
     const handleLogin = () => {
         router.push("/login");
     };
+
     return (
         <div className="home-container">
             <div className="hero">
                 <h1 className="title">Welcome to Your Shopify App</h1>
                 <p className="description">Manage your products with ease and efficiency.</p>
-                <button onClick={handleLogin} className="login-button">Login to Get Started</button>
+                {showLogin && (
+                    <button onClick={handleLogin} className="login-button">Login to Get Started</button>
+                )}
             </div>
         </div>
     );

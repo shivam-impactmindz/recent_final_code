@@ -32,7 +32,7 @@ function ProductsPage() {
                 "ProductsPage.useEffect.verifyShopAndFetchProducts": async ()=>{
                     const shop = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$js$2d$cookie$2f$dist$2f$js$2e$cookie$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("shop");
                     if (!shop) {
-                        router.replace("/login");
+                        router.replace("/");
                         return;
                     }
                     try {
@@ -48,7 +48,7 @@ function ProductsPage() {
                         const verifyData = await verifyResponse.json();
                         if (!verifyData.isValid) {
                             setIsValidShop(false);
-                            router.replace("/login");
+                            router.replace("/");
                             return;
                         }
                         setIsValidShop(true);
