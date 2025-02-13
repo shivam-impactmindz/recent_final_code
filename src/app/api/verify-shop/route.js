@@ -1,4 +1,4 @@
-// src\app\api\verify-shop\route.js
+// src/app/api/verify-shop/route.js
 import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 
@@ -27,7 +27,6 @@ export async function POST(req) {
     await client.close();
   }
 }
-
 
 // import { MongoClient } from "mongodb";
 // const MONGO_URI = process.env.MONGO_URI;

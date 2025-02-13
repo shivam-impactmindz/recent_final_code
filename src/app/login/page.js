@@ -1,7 +1,4 @@
 // src/app/login/page.js
-
-
-// src/app/login/page.js
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +6,7 @@ import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [shop, setShop] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("abc12324"); // Default password
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -25,7 +22,6 @@ export default function LoginPage() {
 
   const handleLogin = async (shopFromUrl = null) => {
     const shopName = shopFromUrl || shop.trim();
-    const passwordValue = "abc12324"; // Default password
 
     if (!shopName) {
       setError("Please enter a store name.");
@@ -33,17 +29,15 @@ export default function LoginPage() {
     }
 
     setError("");
-    const expiresInDays = 7; // Cookie expiry in days
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + expiresInDays);
 
+    // Save shop and password to localStorage and cookies
     localStorage.setItem("shop", shopName);
-    localStorage.setItem("password", passwordValue);
+    localStorage.setItem("password", password);
 
-    // Set cookies with expiry of 7 days
-    Cookies.set("shop", shopName, { expires: expiresInDays });
-    Cookies.set("password", passwordValue, { expires: expiresInDays });
+    Cookies.set("shop", shopName, { expires: 7 });
+    Cookies.set("password", password, { expires: 7 });
 
+    // Redirect to OAuth endpoint
     window.location.href = `/api/auth/?shop=${shopName}`;
   };
 
@@ -61,14 +55,18 @@ export default function LoginPage() {
           type="password"
           placeholder="Enter your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          readOnly // Make password field read-only
         />
         <button onClick={() => handleLogin()}>Login</button>
         {error && <p className="error-message">{error}</p>}
+        <p>Your password is: <strong>{password}</strong></p>
       </div>
     </div>
   );
 }
+
+
+
 // "use client";
 // import { useState, useEffect } from "react"; // <-- Import useEffect and useState from React
 // import { useRouter } from "next/navigation";
