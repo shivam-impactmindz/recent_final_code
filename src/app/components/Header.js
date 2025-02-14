@@ -3,24 +3,27 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 const Header = () => {
   const router = useRouter();
   const [hasShop, setHasShop] = useState(false);
-  const [shop, setShop] = useState(""); // ✅ Store shop in state
+  const [shop, setShop] = useState(""); // Store shop in state
 
   useEffect(() => {
-    if (typeof window !== "undefined") {  // ✅ Check if running in browser
+    if (typeof window !== "undefined") {  // Check if running in browser
       const storedShop = localStorage.getItem("shop");
       if (storedShop) {
         setHasShop(true);
-        setShop(storedShop); // ✅ Set shop state
+        setShop(storedShop); // Set shop state
       }
     }
   }, []);
+
   const handleProductsClick = async (e) => {
-    e.preventDefault();
+    e.preventDefault();  // Prevent default link behavior
     if (!shop) return router.push("/");
 
+    // Call the verify-shop API
     const response = await fetch("/api/verify-shop", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -29,12 +32,14 @@ const Header = () => {
 
     const data = await response.json();
 
+    // If the shop is valid, redirect to the products page with the query params
     if (data.isValid) {
-      router.push(`/products?shop=${shop}`);
+      router.push(`/products?shop=${shop}&hmac=${data.hmac}`); // Include the hmac and shop in query
     } else {
       router.push("/");
     }
   };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -47,7 +52,7 @@ const Header = () => {
               <Link href="/">Home</Link>
             </li>
             <li>
-              <a href={`/products?shop=${shop}`} onClick={handleProductsClick}>
+              <a href="#" onClick={handleProductsClick}>
                 Products
               </a>
             </li>
@@ -63,7 +68,9 @@ const Header = () => {
     </header>
   );
 };
+
 export default Header;
+
 
 
 
