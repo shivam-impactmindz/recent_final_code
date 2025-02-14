@@ -17,7 +17,7 @@ export default function ProductsPage() {
       const hmac = new URL(window.location.href).searchParams.get("hmac");
 
       if (!shop || !hmac) {
-        router.replace("/");
+        router.replace("/login");
         return;
       }
 
