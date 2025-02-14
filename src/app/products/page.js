@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import crypto from "crypto";
 import "@/app/styles/products.css";
 
-// const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
+const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
 
 export default function ProductsPage() {
   const [isValidShop, setIsValidShop] = useState(null);
@@ -17,13 +17,18 @@ export default function ProductsPage() {
   useEffect(() => {
     const verifyShopAndFetchProducts = async () => {
       const shop = Cookies.get("shop");
-      const hmac = Cookies.get("hmac");
+      const hmac = new URL(window.location.href).searchParams.get("hmac");
 
-      const urlParams = new URL(window.location.href).searchParams;
-      const urlShop = urlParams.get("shop");
-      const urlHmac = urlParams.get("hmac");
+      if (!shop || !hmac) {
+        router.replace("/login");
+        return;
+      }
 
-      if (!shop || !hmac || shop !== urlShop || hmac !== urlHmac) {
+      // Generate HMAC on the client side to match the middleware logic
+      const generatedHmac = crypto.createHmac("sha256", SECRET_KEY).update(shop).digest("hex");
+
+      if (generatedHmac !== hmac) {
+        console.error("HMAC mismatch: Invalid shop credentials");
         router.replace("/login");
         return;
       }
@@ -37,21 +42,25 @@ export default function ProductsPage() {
 
         const verifyData = await verifyResponse.json();
         if (!verifyData.isValid) {
-          router.replace("/login");
+          setIsValidShop(false);
+          router.replace("/");
           return;
         }
 
         setIsValidShop(true);
 
-        const productsResponse = await fetch(`/api/products?shop=${shop}`);
+        // Fetch products if the shop is valid
+        const productsResponse = await fetch('/api/products?shop=${shop}');
         const productsData = await productsResponse.json();
 
         if (productsData.products) {
           setProducts(productsData.products);
+        } else {
+          setProducts([]);
         }
       } catch (error) {
         console.error("Error verifying shop or fetching products:", error);
-        router.replace("/login");
+        setIsValidShop(false);
       } finally {
         setLoading(false);
       }

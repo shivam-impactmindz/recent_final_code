@@ -1,5 +1,3 @@
-
-
 // src/app/api/verify-shop/route.js
 import { MongoClient } from "mongodb";
 import crypto from "crypto";
@@ -52,7 +50,6 @@ export async function POST(req) {
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-
 
 
 
