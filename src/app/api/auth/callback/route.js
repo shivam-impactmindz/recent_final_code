@@ -50,13 +50,13 @@ export async function GET(req, res) {
     );
     console.log("✅ Session saved successfully:", sessionData);
     
-    // Set shop in cookies
-    cookies().set("shop", session.shop, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",  // Secure cookie in production
-      maxAge: 60 * 60 * 24 * 7,  // 1 week
-    });
-    
+    // // Set shop in cookies
+    // cookies().set("shop", session.shop, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",  // Secure cookie in production
+    //   maxAge: 60 * 60 * 24 * 7,  // 1 week
+    // });
+
     // Generate HMAC
     const hmac = crypto
       .createHmac('sha256', SECRET_KEY)

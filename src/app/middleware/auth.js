@@ -12,24 +12,26 @@ export async function middleware(req) {
   const hmac = url.searchParams.get("hmac");
 
   if (!shop || !hmac) {
+    console.error("Missing shop or hmac");
     return NextResponse.redirect("/login");
   }
 
-  // Generate HMAC
+  // Generate HMAC using the shop name
   const generatedHmac = crypto
-    .createHmac('sha256', SECRET_KEY)
+    .createHmac("sha256", SECRET_KEY)
     .update(shop)
-    .digest('hex');
+    .digest("hex");
 
-  // Compare HMAC
+  // Compare generated HMAC with the one in the URL
   if (generatedHmac !== hmac) {
-    console.error("HMAC mismatch:", { generatedHmac, hmac });
+    console.error("HMAC mismatch", { generatedHmac, hmac });
     return NextResponse.redirect("/login");
   }
 
-  // Connect to database and verify session
+  // Connect to the database and verify the session
   await connectToDatabase();
   const session = await Session.findOne({ shop });
+
   if (!session || !session.accessToken) {
     console.error("Session not found or invalid:", { shop });
     return NextResponse.redirect("/login");
