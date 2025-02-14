@@ -22,6 +22,7 @@ export async function GET(req, res) {
 
     console.log("Session received:", session);
 
+    // Check for necessary session fields
     if (!session?.shop || !session?.accessToken) {
       throw new Error("Session missing required fields (shop, accessToken)");
     }
@@ -49,13 +50,13 @@ export async function GET(req, res) {
       { upsert: true }
     );
     console.log("✅ Session saved successfully:", sessionData);
-    
-    // // Set shop in cookies
-    // cookies().set("shop", session.shop, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",  // Secure cookie in production
-    //   maxAge: 60 * 60 * 24 * 7,  // 1 week
-    // });
+
+    // Set shop in cookies
+    cookies().set("shop", shop, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",  // Secure cookie in production
+      maxAge: 60 * 60 * 24 * 7,  // 1 week
+    });
 
     // Generate HMAC
     const hmac = crypto
@@ -67,7 +68,7 @@ export async function GET(req, res) {
     const { searchParams } = new URL(req.url);
     const host = searchParams.get("host");
     const hostWithoutProtocol = process.env.NEXT_PUBLIC_HOST.replace(/^https?:\/\//, '');
-    const redirectUrl = 'https://${hostWithoutProtocol}/products?host=${host}&shop=${session.shop}&hmac=${hmac}';
+    const redirectUrl = `https://${hostWithoutProtocol}/products?host=${host}&shop=${session.shop}&hmac=${hmac}`;
     console.log("🔹 Redirecting to:", redirectUrl);
 
     return NextResponse.redirect(redirectUrl);
@@ -81,6 +82,7 @@ export async function GET(req, res) {
     await client.close();
   }
 }
+
 
 // // src/app/api/auth/callback/route.js
 // import shopify from "@/app/lib/shopify";
