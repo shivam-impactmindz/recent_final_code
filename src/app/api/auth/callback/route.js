@@ -43,22 +43,27 @@ export async function GET(req, res) {
     };
 
     // ✅ Upsert session into MongoDB
-    const existingShop = await sessions.findOne({ shop });
-    if (existingShop) {
-      console.log(`Shop ${shop} already exists. Skipping session creation.`);
-    } else {
-      // ✅ Upsert session into MongoDB if shop doesn't exist
-      await sessions.insertOne(sessionData);
-      console.log("✅ Session saved successfully:", sessionData);
-    }
-
+    await sessions.updateOne(
+      { shop },
+      { $set: sessionData },
+      { upsert: true }
+    );
+    console.log("✅ Session saved successfully:", sessionData);
+    
+    // Set shop in cookies
+    cookies().set("shop", session.shop, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",  // Secure cookie in production
+      maxAge: 60 * 60 * 24 * 7,  // 1 week
+    });
+    
     // Generate HMAC
     const hmac = crypto
       .createHmac('sha256', SECRET_KEY)
       .update(shop)
       .digest('hex');
 
-    // ✅ Redirect to About page with necessary params
+    // ✅ Redirect to Products page with necessary params
     const { searchParams } = new URL(req.url);
     const host = searchParams.get("host");
     const hostWithoutProtocol = process.env.NEXT_PUBLIC_HOST.replace(/^https?:\/\//, '');

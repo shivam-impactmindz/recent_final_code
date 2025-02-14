@@ -23,6 +23,7 @@ export async function middleware(req) {
 
   // Compare HMAC
   if (generatedHmac !== hmac) {
+    console.error("HMAC mismatch:", { generatedHmac, hmac });
     return NextResponse.redirect("/login");
   }
 
@@ -30,6 +31,7 @@ export async function middleware(req) {
   await connectToDatabase();
   const session = await Session.findOne({ shop });
   if (!session || !session.accessToken) {
+    console.error("Session not found or invalid:", { shop });
     return NextResponse.redirect("/login");
   }
 

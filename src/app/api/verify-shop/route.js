@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 import crypto from "crypto";
 
 const MONGO_URI = process.env.MONGO_URI;
-const SECRET_KEY = process.env.SHOPIFY_SECRET_KEY;
+const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
 let client = null;
 
 async function getClient() {
@@ -26,6 +26,7 @@ export async function POST(req) {
 
     // Compare HMAC
     if (generatedHmac !== hmac) {
+      console.error("HMAC mismatch in verify-shop:", { generatedHmac, hmac });
       return Response.json({ isValid: false });
     }
 
