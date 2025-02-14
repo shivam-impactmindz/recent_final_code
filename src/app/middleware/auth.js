@@ -4,7 +4,7 @@ import connectToDatabase from "@/app/lib/database";
 import Session from "@/app/models/session";
 import crypto from "crypto";
 
-const SECRET_KEY = process.env.SHOPIFY_SECRET_KEY;
+const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
 
 export async function middleware(req) {
   const shop = req.cookies.get("shop")?.value;

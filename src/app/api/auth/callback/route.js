@@ -6,7 +6,7 @@ import { MongoClient } from "mongodb";
 import crypto from "crypto";
 
 const MONGO_URI = process.env.MONGO_URI;
-const SECRET_KEY = process.env.SHOPIFY_SECRET_KEY;
+const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
 const client = new MongoClient(MONGO_URI);
 
 export async function GET(req, res) {
