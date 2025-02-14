@@ -37,7 +37,6 @@ export const config = {
 };
 
 
-
 // // src/middleware/auth.js
 // import { NextResponse } from "next/server";
 // import connectToDatabase from "@/app/lib/database";

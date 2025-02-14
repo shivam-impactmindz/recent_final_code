@@ -1,11 +1,9 @@
 // src/app/api/verify-shop/route.js
 import { MongoClient } from "mongodb";
 import crypto from "crypto";
-
 const MONGO_URI = process.env.MONGO_URI;
 const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
 let client = null;
-
 async function getClient() {
   if (!client) {
     client = new MongoClient(MONGO_URI);
@@ -13,23 +11,17 @@ async function getClient() {
   }
   return client;
 }
-
 export async function POST(req) {
   try {
     const { shop, hmac } = await req.json();
-
     const generatedHmac = crypto.createHmac('sha256', SECRET_KEY).update(shop).digest('hex');
-
     if (generatedHmac !== hmac) {
       return Response.json({ isValid: false });
     }
-
     const client = await getClient();
     const database = client.db("shopifyapp");
     const sessions = database.collection("sessions");
-
     const session = await sessions.findOne({ shop });
-
     return Response.json({ isValid: !!session });
   } catch (error) {
     console.error("Error verifying shop:", error);

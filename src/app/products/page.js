@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import crypto from "crypto";
 import "@/app/styles/products.css";
 
-const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
+// const SECRET_KEY = process.env.NEXT_PUBLIC_SHOPIFY_API_SECRET;
 
 export default function ProductsPage() {
   const [isValidShop, setIsValidShop] = useState(null);
