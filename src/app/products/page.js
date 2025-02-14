@@ -17,18 +17,13 @@ export default function ProductsPage() {
   useEffect(() => {
     const verifyShopAndFetchProducts = async () => {
       const shop = Cookies.get("shop");
-      const hmac = new URL(window.location.href).searchParams.get("hmac");
+      const hmac = Cookies.get("hmac");
 
-      if (!shop || !hmac) {
-        router.replace("/login");
-        return;
-      }
+      const urlParams = new URL(window.location.href).searchParams;
+      const urlShop = urlParams.get("shop");
+      const urlHmac = urlParams.get("hmac");
 
-      // Generate HMAC on the client side to match the middleware logic
-      const generatedHmac = crypto.createHmac("sha256", SECRET_KEY).update(shop).digest("hex");
-
-      if (generatedHmac !== hmac) {
-        console.error("HMAC mismatch: Invalid shop credentials");
+      if (!shop || !hmac || shop !== urlShop || hmac !== urlHmac) {
         router.replace("/login");
         return;
       }
@@ -42,25 +37,21 @@ export default function ProductsPage() {
 
         const verifyData = await verifyResponse.json();
         if (!verifyData.isValid) {
-          setIsValidShop(false);
-          router.replace("/");
+          router.replace("/login");
           return;
         }
 
         setIsValidShop(true);
 
-        // Fetch products if the shop is valid
         const productsResponse = await fetch(`/api/products?shop=${shop}`);
         const productsData = await productsResponse.json();
 
         if (productsData.products) {
           setProducts(productsData.products);
-        } else {
-          setProducts([]);
         }
       } catch (error) {
         console.error("Error verifying shop or fetching products:", error);
-        setIsValidShop(false);
+        router.replace("/login");
       } finally {
         setLoading(false);
       }
