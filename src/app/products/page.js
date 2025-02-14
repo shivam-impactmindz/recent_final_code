@@ -27,28 +27,31 @@ export default function ProductsPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ shop, hmac }),
         });
-
         const verifyData = await verifyResponse.json();
+        
         if (!verifyData.isValid) {
-          setIsValidShop(false);
-          router.replace("/");
+          setIsValidShop(false);  // Set to false if verification fails
+          router.replace("/");     // Redirect to home if shop is invalid
           return;
         }
 
-        setIsValidShop(true);
+        setIsValidShop(true);  // Set to true if shop is valid
+
+        // Fetch products
         const productsResponse = await fetch(`/api/products?shop=${shop}`);
         const productsData = await productsResponse.json();
-        console.log("productsResponse", productsResponse);
-        console.log("productsData", productsData);
 
         if (productsData.products) {
-          setProducts(productsData.products);
+          setProducts(productsData.products);  // Populate products if available
+        } else {
+          setProducts([]);  // Ensure an empty array if no products are returned
         }
+
       } catch (error) {
         console.error("Error verifying shop or fetching products:", error);
-        setIsValidShop(false);
+        setIsValidShop(false);  // If there's an error, mark the shop as invalid
       } finally {
-        setLoading(false);
+        setLoading(false);  // Stop loading once the process is complete
       }
     };
 
@@ -56,7 +59,7 @@ export default function ProductsPage() {
   }, [router]);
 
   if (loading) return <p>Loading...</p>;
-  if (isValidShop === false) return null;
+  if (isValidShop === false) return <p>Shop validation failed. Redirecting...</p>;
 
   return (
     <div className="products-container">
@@ -85,7 +88,6 @@ export default function ProductsPage() {
     </div>
   );
 }
-
 
 
 

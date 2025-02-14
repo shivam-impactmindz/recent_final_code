@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 const Header = () => {
   const router = useRouter();
   const [hasShop, setHasShop] = useState(false);
@@ -18,7 +17,6 @@ const Header = () => {
       }
     }
   }, []);
-
   const handleProductsClick = async (e) => {
     e.preventDefault();
     if (!shop) return router.push("/");
@@ -37,7 +35,6 @@ const Header = () => {
       router.push("/");
     }
   };
-
   return (
     <header className="header">
       <div className="header-container">
@@ -66,7 +63,6 @@ const Header = () => {
     </header>
   );
 };
-
 export default Header;
 
 
